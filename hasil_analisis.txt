@@ -1,0 +1,139 @@
+
+======================================================================
+1. KUALITAS DATA
+======================================================================
+Kota                  str
+Suhu (°C)         float64
+Kelembaban (%)      int64
+Kondisi               str
+dtype: object 
+Missing:
+ Kota              0
+Suhu (°C)         0
+Kelembaban (%)    0
+Kondisi           0
+dtype: int64 
+Duplikat: 115
+Kelembaban di luar 0-100: 0 | Kelembaban tepat 100%: 5 (batas atas fisik)
+
+======================================================================
+2. NOMINAL: Kota & Kondisi
+======================================================================
+              n     %
+Kota                 
+Bandung     167  16.7
+Jakarta     162  16.2
+Surabaya    149  14.9
+Semarang    131  13.1
+Medan       123  12.3
+Yogyakarta  106  10.6
+Makassar     82   8.2
+Denpasar     80   8.0 
+
+           n     %
+Kondisi           
+Cerah    387  38.7
+Berawan  301  30.1
+Hujan    285  28.5
+Kabut     27   2.7 
+
+
+======================================================================
+3. KOTA x KONDISI (% per kota) + uji Chi-Square
+======================================================================
+Kondisi     Berawan  Cerah  Hujan  Kabut
+Kota                                    
+Bandung        32.3   18.6   43.7    5.4
+Denpasar       32.5   50.0   16.2    1.2
+Jakarta        28.4   44.4   23.5    3.7
+Makassar       28.0   47.6   23.2    1.2
+Medan          27.6   32.5   38.2    1.6
+Semarang       28.2   45.0   24.4    2.3
+Surabaya       33.6   41.6   23.5    1.3
+Yogyakarta     29.2   41.5   26.4    2.8
+
+Chi-square=62.4, dof=21, p=5.59e-06, Cramer's V=0.14 -> kondisi cuaca berhubungan dengan kota
+
+======================================================================
+4. SUHU (Interval) & KELEMBABAN (Rasio): statistik deskriptif
+======================================================================
+                 count   mean    std   min  ...   75%    max  skewness  kurtosis
+Suhu (°C)       1000.0  29.78   3.75  16.0  ...  32.5   40.0     -0.66     -0.01
+Kelembaban (%)  1000.0  74.76  11.01  45.0  ...  83.0  100.0     -0.02     -0.54
+
+[2 rows x 10 columns]
+
+Outlier Suhu (°C): batas [20.0, 40.0] -> 6 data (0.6%)
+  Shapiro p=2.89e-09
+
+Outlier Kelembaban (%): batas [43.0, 107.0] -> 0 data (0.0%)
+  Shapiro p=0.0166
+
+======================================================================
+5. CATATAN SKALA: kenapa rasio suhu tidak berlaku?
+======================================================================
+Suhu (interval): selisih bermakna, rasio tidak. 20 C bukan 2x lebih panas dari 10 C.
+Bukti: 20 C / 10 C = 2.00, tetapi dalam Kelvin 293.15 / 283.15 = 1.035
+Kelembaban (rasio): 0% = tidak ada uap air, jadi 80% memang 2x lebih lembab dari 40%.
+
+======================================================================
+6. PER KOTA
+======================================================================
+              n  suhu_mean  suhu_sd  hum_mean  hum_sd
+Kota                                                 
+Surabaya    149      32.03     2.64     69.66   10.45
+Makassar     82      31.45     2.54     72.73    9.75
+Semarang    131      31.26     2.64     73.15   10.05
+Denpasar     80      31.25     2.18     71.76    8.31
+Jakarta     162      31.13     2.57     70.39   10.67
+Medan       123      29.84     2.45     80.07    9.62
+Yogyakarta  106      29.39     3.03     75.30   10.73
+Bandung     167      23.96     2.48     82.99    9.07
+
+Kruskal-Wallis Suhu ~ Kota: H=426.8, p=4.35e-88
+Kruskal-Wallis Kelembaban ~ Kota: H=185.7, p=1.23e-36
+
+======================================================================
+7. PER KONDISI CUACA
+======================================================================
+           n  suhu_mean  hum_mean  hum_median
+Kondisi                                      
+Berawan  301      29.97     75.02        75.0
+Cerah    387      32.40     65.39        66.0
+Hujan    285      26.38     86.07        86.0
+Kabut     27      26.04     86.67        86.0
+
+Kruskal-Wallis Suhu ~ Kondisi: H=494.1, p=9.11e-107
+Kruskal-Wallis Kelembaban ~ Kondisi: H=637.5, p=7.51e-138
+
+======================================================================
+8. KORELASI SUHU vs KELEMBABAN
+======================================================================
+Gabungan: Spearman rho=-0.72, p=4.29e-159
+Per kota:
+  Bandung     rho=-0.65
+  Denpasar    rho=-0.67
+  Jakarta     rho=-0.67
+  Makassar    rho=-0.71
+  Medan       rho=-0.77
+  Semarang    rho=-0.63
+  Surabaya    rho=-0.70
+  Yogyakarta  rho=-0.67
+
+======================================================================
+9. KATEGORI SUHU (turunan dari interval)
+======================================================================
+Suhu (°C)
+Sejuk (<=25)      135
+Hangat (25-30)    344
+Panas (>30)       521
+Name: count, dtype: int64
+
+======================================================================
+10. INSIGHT OTOMATIS
+======================================================================
+- Kota terpanas (rata²): Surabaya (32.0 C); terdingin: Bandung (24.0 C).
+- Kota paling lembab: Bandung (83.0%).
+- Kondisi terbanyak: Cerah (38.7%).
+- Saat Hujan kelembaban rata² 86.1% vs Cerah 65.4%.
+- Korelasi suhu-kelembaban -0.72: makin panas, cenderung makin kering.
